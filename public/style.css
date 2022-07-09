@@ -1,0 +1,17 @@
+.body {
+    background-color: rgba(145, 140, 136, 0.20);
+    margin: 0%;
+    list-style: none;
+}
+
+.header {
+    background-color: #003697;
+    padding: 3%;
+    text-align: center;
+    color: white;
+}
+
+.form {
+    text-align: center;
+    margin: 3%;
+}
