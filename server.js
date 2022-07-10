@@ -1,28 +1,52 @@
 import express from 'express';
 import CartContainer from './cartContainer.js';
 import ProductContainer from './productContainer.js';
+import { createServer } from "http";
+import { Server } from "socket.io";
+
 
 const app = express()
 const router = express.Router()
 
-app.use('/api', router)
+const httpServer = createServer(app);
+const io = new Server(httpServer);
 
-router.use(express.json())
-router.use(express.urlencoded({extended: true}))
+app.use('/api', router);
 
-app.use(express.json());
-app.use(express.urlencoded({extended: true}));
+router.use(express.json());
+router.use(express.urlencoded({ extended: true }));
+
 app.use(express.static('public'))         // con http://localhost:8080/
-//app.use('/static', express.static('public')) // con http://localhost:8080/static/
+// app.use('/static', express.static('public')) // con http://localhost:8080/static/
+
+app.set("views", "./public/views");
+app.set("view engine", "ejs");
+// -----------------------------------------------------------------------------------
+
+const products = new ProductContainer("productos");
+
+io.on("connection", async (socket) => {
+    console.log(`Nuevo cliente conectado ${socket.id}`);
+
+    socket.emit("productos", await products.getAll());
+
+    socket.on('buscarProducto', async () => {
+        socket.emit("productos", await products.getAll());
+    });
+});
 
 // --- Conexxion del Servidor ------------------------------------------------------
 const PORT = 8080;
-const server = app.listen(PORT, () => {
-    console.log(`Servidor http escuchando en el puerto ${server.address().port}`)});
-server.on("error", error => console.log(`Error en servidor ${error}`));
-// ---------------------------------------------------------------------------------
+const connectedServer = httpServer.listen(PORT, () => {
+    console.log(`Servidor http escuchando en el puerto ${connectedServer.address().port}`)
+});
+connectedServer.on("error", error => console.log(`Error en servidor ${error}`));
 
-const products = new ProductContainer("productos");
+app.get("/", (req, res) => {
+    res.render("pages/index");
+});
+
+// -----Api de Productos -----------------------------------------------------------
 
 router.get('/productos/:id?', async (req, res) => {
     let id = req.params.id;
@@ -38,7 +62,7 @@ router.post('/productos', async (req, res) => {
     res.json(product);
 })
 
-router.put('/productos/:id', async (req, res)=>{
+router.put('/productos/:id', async (req, res) => {
     res.json(await products.put(req.params.id, req.body));
 })
 
@@ -51,7 +75,7 @@ router.delete('/productos/:id', async (req, res) => {
     }
 })
 
-//----------------------------------------------------------------------------------
+//------ Api de carritos -----------------------------------------------------------
 const carts = new CartContainer("carritos");
 
 router.post('/carrito', async (req, res) => {
@@ -85,5 +109,4 @@ router.delete('/carrito/:id/productos/:id_prod', async (req, res) => {
     } else {
         res.sendStatus(200);
     }
-})
-
+});
