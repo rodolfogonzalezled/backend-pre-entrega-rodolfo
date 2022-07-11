@@ -1,0 +1,31 @@
+[
+  {
+    "id": 1,
+    "nombre": "nba 2k23",
+    "precio": "300",
+    "foto": "https://image.api.playstation.com/pr/bam-art/143/366/028c90f5-63d9-4611-bc55-798076c208ea.jpg?w=620&thumb=false",
+    "descripcion": "tgyyuhg",
+    "codigo": "ZNVTW18097",
+    "stock": "34"
+  },
+  {
+    "id": 3,
+    "timestamp": "11/7/2022 01:15:29",
+    "nombre": "Elden Ring",
+    "precio": "4000",
+    "foto": "https://image.api.playstation.com/pr/bam-art/135/007/c090bede-e5e2-45de-8443-17e99701ab64.jpg?w=620&thumb=false",
+    "descripcion": "tgyyuhg",
+    "codigo": "ZNVTW18066",
+    "stock": "4"
+  },
+  {
+    "id": 4,
+    "timestamp": "11/7/2022 01:37:05",
+    "nombre": "Rodolfo Jose",
+    "precio": "300",
+    "foto": "https://culturageek.com.ar/wp-content/uploads/2022/07/3999947-mj1.jpeg",
+    "descripcion": "tgyyuhg",
+    "codigo": "hdhd",
+    "stock": "4"
+  }
+]

@@ -107,7 +107,7 @@ socket.on("productos", (productos) => {
             <div class="card products">
                 <img class="products__img" src=${producto.foto} alt=${producto.nombre}>
                 <div class="card-body products__info">
-                    <h3 class="card-title">${producto.nombre}</h3>
+                    <h4 class="card-title">${producto.nombre}</h4>
                     <div class="card-text">
                         <p><b>Precio:</b> $ ${producto.precio}</p>
                         <p><b>Descripción:</b> ${producto.descripcion}</p>
