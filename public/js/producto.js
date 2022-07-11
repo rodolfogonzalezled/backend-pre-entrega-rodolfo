@@ -1,4 +1,3 @@
-const socket = io.connect();
 
 const nombre = document.getElementById("nombre");
 const precio = document.getElementById("precio");
@@ -64,14 +63,9 @@ function borrarProducto(id) {
 }
 
 function modificarProducto(id) {
-    fetch(`/api/productos/${id}`, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    })
-        .then(data => data.json())
-        .then(producto => {
+    obtenerProductoPorId(id)
+    .then(producto => {
+        if (producto) {
             nombre.value = producto.nombre;
             precio.value = producto.precio;
             foto.value = producto.foto;
@@ -79,8 +73,23 @@ function modificarProducto(id) {
             codigo.value = producto.codigo;
             stock.value = producto.stock;
             modificacion = id;
-        })
-        .catch(error => console.error('Error:', error));
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+async function obtenerProductoPorId(id) {
+    try {
+        const response = await fetch(`/api/productos/${id}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        return await response.json();
+    } catch (error) {
+        console.error('Error:', error)
+    }
 }
 
 socket.on("productos", (productos) => {
@@ -106,8 +115,8 @@ socket.on("productos", (productos) => {
                         <p><b>Stock:</b> ${producto.stock}</p>
                     </div>
                     <div class="d-flex justify-content-between col-11 mx-auto">
-                        <i id="btnAgregarCarrito${producto.id}" class="bi bi-cart-plus btn btn-secondary"></i>
-                        <i id="btnBorrarProducto${producto.id}" class="bi bi-trash btn btn-secondary"></i>
+                        <a><i id="btnAgregarCarrito${producto.id}" class="bi bi-cart-plus btn btn-secondary"></i></a>
+                        <a><i id="btnBorrarProducto${producto.id}" class="bi bi-trash btn btn-secondary"></i></a>
                         <a href="#agregar"><i id="btnModificarProducto${producto.id}" class="bi bi-pencil btn btn-secondary"></i></a>
                     </div>
                 </div>
@@ -118,7 +127,7 @@ socket.on("productos", (productos) => {
 
         let btnAgregarCarrito = document.getElementById(`btnAgregarCarrito${producto.id}`);
         btnAgregarCarrito.addEventListener('click', () => {
-            agregarCarrito(producto.id)
+            agregarAlCarrito(producto.id)
         });
 
         let btnBorrarProducto = document.getElementById(`btnBorrarProducto${producto.id}`);

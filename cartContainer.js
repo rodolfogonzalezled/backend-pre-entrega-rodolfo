@@ -19,7 +19,7 @@ export default class CartContainer {
         }
 
         try {
-            cartAdded = { id: newId, ...cart };
+            cartAdded = { id: newId, timestamp: new Date(Date.now()).toLocaleString(), productos: [{...cart.producto, cantidad: 1}] };
             carts.push(cartAdded);
             await fsPromises.writeFile(`${this.name}.json`, JSON.stringify(carts, null, 2));
             return newId;
@@ -60,7 +60,35 @@ export default class CartContainer {
         if (carts.find(cart => cart.id == id)) {
             carts.map(cart => {
                 if (cart.id == id) {
-                    cart.productos.push(product);
+                    // let productos = [];
+
+                    // cart.productos.map(x => {
+                    let producto = cart.productos.find(y => y.id == product.id);
+                    console.log("first", producto)
+                    if (producto) {
+                        cart.productos.map(x => {
+                            if (x.id == producto.id) {
+                                x.cantidad = producto.cantidad + 1;
+                            }
+                        });
+
+
+
+                        // productos.push({ cantidad: producto.cantidad++, ...product })
+                    } else {
+                        cart.productos.push({ cantidad: 1, ...product });
+                    }
+                    //     let cantidad = cart.productos.find(y => y.id == x.id).length;
+                    //     console.log('cantidad: ', cantidad)
+                    //     if (cantidad > 1) {
+                    //         if (!productos.find(el => el.id == x.id)) {
+                    //             productos.push({ cantidad, ...x })
+                    //         }
+                    //     } else {
+                    //         productos.push({cantidad: 1, ...x})
+                    //     }
+                    // })
+
                     cartUpdate = cart;
                 }
             })

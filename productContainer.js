@@ -19,7 +19,7 @@ export default class ProductContainer {
         }
 
         try {
-            productAdded = { id: newId, ...product };
+            productAdded = { id: newId, timestamp: new Date(Date.now()).toLocaleString(), ...product };
             products.push(productAdded);
             await fsPromises.writeFile(`${this.name}.json`, JSON.stringify(products, null, 2));
             return productAdded;

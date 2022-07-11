@@ -4,7 +4,6 @@ import ProductContainer from './productContainer.js';
 import { createServer } from "http";
 import { Server } from "socket.io";
 
-
 const app = express()
 const router = express.Router()
 
@@ -16,14 +15,27 @@ app.use('/api', router);
 router.use(express.json());
 router.use(express.urlencoded({ extended: true }));
 
-app.use(express.static('public'))         // con http://localhost:8080/
+app.use(express.static('public'))               // con http://localhost:8080/
 // app.use('/static', express.static('public')) // con http://localhost:8080/static/
 
 app.set("views", "./public/views");
 app.set("view engine", "ejs");
-// -----------------------------------------------------------------------------------
+
+// --- Conexxion del Servidor ------------------------------------------------------
+const PORT = 8080;
+const connectedServer = httpServer.listen(PORT, () => {
+    console.log(`Servidor http escuchando en el puerto ${connectedServer.address().port}`)
+});
+connectedServer.on("error", error => console.log(`Error en servidor ${error}`));
+
+// ----- WEBSOCKETS productos -----------------------------------------------------------
+
+app.get("/", (req, res) => {
+    res.render("pages/index");
+});
 
 const products = new ProductContainer("productos");
+const carts = new CartContainer("carritos");
 
 io.on("connection", async (socket) => {
     console.log(`Nuevo cliente conectado ${socket.id}`);
@@ -33,17 +45,21 @@ io.on("connection", async (socket) => {
     socket.on('buscarProducto', async () => {
         socket.emit("productos", await products.getAll());
     });
-});
 
-// --- Conexxion del Servidor ------------------------------------------------------
-const PORT = 8080;
-const connectedServer = httpServer.listen(PORT, () => {
-    console.log(`Servidor http escuchando en el puerto ${connectedServer.address().port}`)
-});
-connectedServer.on("error", error => console.log(`Error en servidor ${error}`));
+    // socket.emit("carritos", await carts.getCartProducts(id));
 
-app.get("/", (req, res) => {
-    res.render("pages/index");
+    socket.on('buscarCarrito', async (id) => {
+        socket.emit("carritos", await carts.getCartProducts(id));
+    });
+
+
+});
+// ----- WEBSOCKETS carrito -------------------------------------------------------------
+
+app.get('/carrito', (req, res) => {
+    res.render('pages/carrito', {
+        products: products.getAll()
+    })
 });
 
 // -----Api de Productos -----------------------------------------------------------
@@ -76,7 +92,6 @@ router.delete('/productos/:id', async (req, res) => {
 })
 
 //------ Api de carritos -----------------------------------------------------------
-const carts = new CartContainer("carritos");
 
 router.post('/carrito', async (req, res) => {
     let cart = await carts.add(req.body);
