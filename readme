@@ -51,4 +51,4 @@ Se presentan 2 rutas bases:
 }
 ```
 
-> Nota: "En la carpeta Middleware se creo el archivo isAdmin.js donde se creo una variable booleana 'administrador', si la variable no es true, no va a dejar entrar a las rutas para ejecutar los metodos post, put y delete".
+#### Nota: "En la carpeta Middleware se creo el archivo isAdmin.js donde se creo una variable booleana 'administrador', si la variable no es true, no va a dejar entrar a las rutas para ejecutar los metodos post, put y delete".
