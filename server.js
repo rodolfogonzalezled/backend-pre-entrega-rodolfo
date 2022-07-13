@@ -3,6 +3,7 @@ import CartContainer from './cartContainer.js';
 import ProductContainer from './productContainer.js';
 import { createServer } from "http";
 import { Server } from "socket.io";
+import { isAdmin } from './public/middlewares/isAdmin.js';
 
 const app = express()
 const router = express.Router()
@@ -28,14 +29,18 @@ const connectedServer = httpServer.listen(PORT, () => {
 });
 connectedServer.on("error", error => console.log(`Error en servidor ${error}`));
 
-// ----- WEBSOCKETS productos -----------------------------------------------------------
+// ----- WEBSOCKETS -----------------------------------------------------------
+
+const products = new ProductContainer("productos");
+const carts = new CartContainer("carritos");
 
 app.get("/", (req, res) => {
     res.render("pages/index");
 });
 
-const products = new ProductContainer("productos");
-const carts = new CartContainer("carritos");
+app.get('/carrito', (req, res) => {
+    res.render('pages/carrito')
+});
 
 io.on("connection", async (socket) => {
     console.log(`Nuevo cliente conectado ${socket.id}`);
@@ -46,43 +51,30 @@ io.on("connection", async (socket) => {
         socket.emit("productos", await products.getAll());
     });
 
-    // socket.emit("carritos", await carts.getCartProducts(id));
-
     socket.on('buscarCarrito', async (id) => {
         socket.emit("carritos", await carts.getCartProducts(id));
     });
-
-
-});
-// ----- WEBSOCKETS carrito -------------------------------------------------------------
-
-app.get('/carrito', (req, res) => {
-    res.render('pages/carrito', {
-        products: products.getAll()
-    })
 });
 
 // -----Api de Productos -----------------------------------------------------------
 
-router.get('/productos/:id?', async (req, res) => {
-    let id = req.params.id;
-    if (id) {
-        res.json(await products.getById(id));
-    } else {
-        res.json(await products.getAll());
-    }
+router.get('/productos/', async (req, res) => {
+    res.json(await products.getAll());
+});
+
+router.get('/productos/:id?', isAdmin, async (req, res) => {
+    res.json(await products.getById(req.params.id));
 })
 
-router.post('/productos', async (req, res) => {
-    let product = await products.add(req.body);
-    res.json(product);
+router.post('/productos', isAdmin, async (req, res) => {
+    res.json({ id: await products.add(req.body) });
 })
 
-router.put('/productos/:id', async (req, res) => {
+router.put('/productos/:id', isAdmin, async (req, res) => {
     res.json(await products.put(req.params.id, req.body));
 })
 
-router.delete('/productos/:id', async (req, res) => {
+router.delete('/productos/:id', isAdmin, async (req, res) => {
     let result = await products.deleteById(req.params.id);
     if (result) {
         res.json(result);
@@ -94,8 +86,7 @@ router.delete('/productos/:id', async (req, res) => {
 //------ Api de carritos -----------------------------------------------------------
 
 router.post('/carrito', async (req, res) => {
-    let cart = await carts.add(req.body);
-    res.json(cart);
+    res.json({ id: await carts.add(req.body) });
 })
 
 router.delete('/carrito/:id', async (req, res) => {
@@ -108,13 +99,11 @@ router.delete('/carrito/:id', async (req, res) => {
 })
 
 router.get('/carrito/:id/productos', async (req, res) => {
-    let id = req.params.id;
-    res.json(await carts.getCartProducts(id));
+    res.json(await carts.getCartProducts(req.params.id));
 })
 
 router.post('/carrito/:id/productos', async (req, res) => {
-    let cart = await carts.addProduct(req.params.id, req.body);
-    res.json(cart);
+    res.json(await carts.addProduct(req.params.id, req.body));
 })
 
 router.delete('/carrito/:id/productos/:id_prod', async (req, res) => {

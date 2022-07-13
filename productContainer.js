@@ -9,7 +9,6 @@ export default class ProductContainer {
 
     async add(product) {
         let products = await this.getAll();
-        let productAdded;
         let newId;
 
         if (products.length) {
@@ -19,10 +18,10 @@ export default class ProductContainer {
         }
 
         try {
-            productAdded = { id: newId, timestamp: new Date(Date.now()).toLocaleString(), ...product };
+            let productAdded = { id: newId, timestamp: new Date(Date.now()).toLocaleString(), ...product };
             products.push(productAdded);
             await fsPromises.writeFile(`${this.name}.json`, JSON.stringify(products, null, 2));
-            return productAdded;
+            return newId;
         } catch (error) {
             console.log(error);
         }
@@ -39,13 +38,11 @@ export default class ProductContainer {
             let products = await fsPromises.readFile(`${this.name}.json`, 'utf8');
             if (products) {
                 return JSON.parse(products);
-            } else {
-                return [];
             }
         } catch (error) {
             console.log(error)
-            return [];
         }
+        return [];
     }
 
     async deleteById(id) {
@@ -54,7 +51,7 @@ export default class ProductContainer {
         if (products.find(product => product.id == id)) {
             products = products.filter(product => product.id != id);
             try {
-                await fsPromises.writeFile(`${this.name}.json`, JSON.stringify(products, null, 2))
+                await fsPromises.writeFile(`${this.name}.json`, JSON.stringify(products, null, 2));
             } catch (error) {
                 console.log(error);
             }
@@ -91,6 +88,3 @@ export default class ProductContainer {
         }
     }
 }
-
-// ---------------------------------------
-

@@ -30,3 +30,40 @@
     line-height: 0;
     font-size: 0.8rem;
 }
+
+/* ---------------------------------------------------- */
+
+.NavBarBrand {
+    display: flex;
+    align-items: center;
+}
+
+.NavBarBrand :hover {
+    color: rgba(255, 255, 255, 0.55);
+    text-decoration: none;
+}
+
+.NavBarTitle {
+    font-size: small;
+    font-family: 'Press Start 2P';
+    display: flex;
+    flex-direction: column;
+    padding-left: 0.4em;
+    text-align: center;
+}
+
+.Logo {
+    font-size: 3rem;
+    text-decoration: none;
+}
+
+.NavBarEnd {
+    justify-content: end;
+    width: 95%;
+    color: rgba(255, 255, 255, 0.55);
+}
+
+.NavBarEnd :hover {
+    color: white;
+    text-decoration: none;
+}

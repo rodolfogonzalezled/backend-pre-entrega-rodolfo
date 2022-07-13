@@ -66,12 +66,12 @@ function modificarProducto(id) {
     obtenerProductoPorId(id)
     .then(producto => {
         if (producto) {
-            nombre.value = producto.nombre;
-            precio.value = producto.precio;
-            foto.value = producto.foto;
-            descripcion.value = producto.descripcion;
-            codigo.value = producto.codigo;
-            stock.value = producto.stock;
+            nombre.value = producto.nombre ? producto.nombre : '';
+            precio.value = producto.precio ? producto.precio : '';
+            foto.value = producto.foto ? producto.foto : '';
+            descripcion.value = producto.descripcion ? producto.descripcion : '';
+            codigo.value = producto.codigo ? producto.codigo : '';
+            stock.value = producto.stock ? producto.stock : '';
             modificacion = id;
         }
     })

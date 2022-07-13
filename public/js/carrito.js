@@ -10,6 +10,7 @@ function agregarAlCarrito(id) {
     obtenerProductoPorId(id)
         .then(producto => {
             if (producto) {
+                console.log(producto)
                 if (idCarrito) {
                     fetch(`/api/carrito/${idCarrito}/productos`, {
                         method: 'POST',
@@ -22,13 +23,13 @@ function agregarAlCarrito(id) {
                 } else {
                     fetch(`/api/carrito`, {
                         method: 'POST',
-                        body: JSON.stringify({producto}),
+                        body: JSON.stringify({ producto }),
                         headers: {
                             'Content-Type': 'application/json'
                         }
                     })
                         .then(result => result.json())
-                        .then(id => window.localStorage.setItem('idCarrito', id))
+                        .then(result => window.localStorage.setItem('idCarrito', result.id))
                         .catch(error => console.error('Error:', error));
                 }
             }
@@ -53,7 +54,6 @@ function obtenerProductos() {
 
 obtenerProductos();
 
-
 function borrarProductoCarrito(idProducto) {
     let idCarrito = window.localStorage.getItem('idCarrito');
     fetch(`/api/carrito/${idCarrito}/productos/${idProducto}`, {
@@ -77,15 +77,10 @@ function borrarCarrito() {
         .then(() => {
             socket.emit("buscarCarrito", idCarrito);
             window.localStorage.removeItem('idCarrito');
+            document.getElementById('btnBorrarCarrito').classList.add('disabled');
         })
         .catch(error => console.error('Error:', error));
 }
-
-// if (productos.length > 0) {
-//     document.getElementById('sinProductos').style.display = 'none';
-// } else {
-//     document.getElementById('sinProductos').style.display = 'block';
-// }
 
 socket.on("carritos", (productos) => {
     pintarCarrito(productos);
@@ -93,15 +88,22 @@ socket.on("carritos", (productos) => {
 });
 
 function pintarCarrito(productos) {
+    if (productos.length) {
+        document.getElementById('btnBorrarCarrito').classList.remove('disabled');
+        document.getElementById('carritoVacio').style.display = 'none';
+    } else {
+        document.getElementById('btnBorrarCarrito').classList.add('disabled');
+        document.getElementById('carritoVacio').style.display = 'block';
+    }
     contenedorProductosCarrito.innerHTML = '';
     productos.map((producto) => {
-        
+
         let divContenedor = document.createElement("li");
         divContenedor.classList.add("list-group-item");
         divContenedor.innerHTML = `
             <div class="row" style="text-align: center">
                 <div class="col">
-                    <img style="border-radius: 8%; width: 45%; border: solid 1px" src="${producto.foto}">
+                    <img style="border-radius: 8%; width: 33%; height: 5em; border: solid 1px" src="${producto.foto}">
                 </div>
                 <div class="col text-left">
                     <div class="col"><b>Nombre:</b> ${producto.nombre}</div>

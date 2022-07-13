@@ -9,17 +9,13 @@ export default class CartContainer {
 
     async add(cart) {
         let carts = await this.getAll();
-        let cartAdded;
-        let newId;
-
-        if (carts.length) {
-            newId = carts[carts.length - 1].id + 1;
-        } else {
-            newId = 1;
-        }
+        let newId = carts.length ? carts[carts.length - 1].id + 1 : 1;
 
         try {
-            cartAdded = { id: newId, timestamp: new Date(Date.now()).toLocaleString(), productos: [{...cart.producto, cantidad: 1}] };
+            let cartAdded = { id: newId, timestamp: new Date(Date.now()).toLocaleString(), productos: [] };
+            if (cart.producto) {
+                cartAdded.productos = [{ ...cart.producto, cantidad: 1 }]
+            }
             carts.push(cartAdded);
             await fsPromises.writeFile(`${this.name}.json`, JSON.stringify(carts, null, 2));
             return newId;
@@ -46,11 +42,7 @@ export default class CartContainer {
     async getCartProducts(id) {
         let carts = await this.getAll();
         let cart = carts.find(cart => cart.id == id);
-        if (cart) {
-            return cart.productos;
-        } else {
-            return { error: "Carrito no encontrado" };
-        }
+        return cart ? cart.productos : { error: "Carrito no encontrado" };
     }
 
     async addProduct(id, product) {
@@ -60,35 +52,16 @@ export default class CartContainer {
         if (carts.find(cart => cart.id == id)) {
             carts.map(cart => {
                 if (cart.id == id) {
-                    // let productos = [];
-
-                    // cart.productos.map(x => {
-                    let producto = cart.productos.find(y => y.id == product.id);
-                    console.log("first", producto)
+                    let producto = cart.productos.find(prod => prod.id == product.id);
                     if (producto) {
-                        cart.productos.map(x => {
-                            if (x.id == producto.id) {
-                                x.cantidad = producto.cantidad + 1;
+                        cart.productos.map(product => {
+                            if (product.id == producto.id) {
+                                product.cantidad = producto.cantidad + 1;
                             }
                         });
-
-
-
-                        // productos.push({ cantidad: producto.cantidad++, ...product })
                     } else {
                         cart.productos.push({ cantidad: 1, ...product });
                     }
-                    //     let cantidad = cart.productos.find(y => y.id == x.id).length;
-                    //     console.log('cantidad: ', cantidad)
-                    //     if (cantidad > 1) {
-                    //         if (!productos.find(el => el.id == x.id)) {
-                    //             productos.push({ cantidad, ...x })
-                    //         }
-                    //     } else {
-                    //         productos.push({cantidad: 1, ...x})
-                    //     }
-                    // })
-
                     cartUpdate = cart;
                 }
             })
@@ -127,13 +100,11 @@ export default class CartContainer {
             let carts = await fsPromises.readFile(`${this.name}.json`, 'utf8');
             if (carts) {
                 return JSON.parse(carts);
-            } else {
-                return [];
             }
         } catch (error) {
             console.log(error)
-            return [];
         }
+        return [];
     }
 }
 
